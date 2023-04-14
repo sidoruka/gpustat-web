@@ -60,7 +60,7 @@ async def run_client(hostname: str, exec_cmd: str, *, port=22,
 
     async def _loop_body():
         # establish a SSH connection.
-        async with asyncssh.connect(hostname, port=port) as conn:
+        async with asyncssh.connect(hostname, port=port, known_hosts=None) as conn:
             cprint(f"[{hostname:<{L}}] SSH connection established!", attrs=['bold'])
 
             while True:
