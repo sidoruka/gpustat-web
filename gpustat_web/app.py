@@ -42,6 +42,7 @@ class Context(object):
     def __init__(self):
         self.host_status = OrderedDict()
         self.interval = 5.0
+        self.public_url = None
 
     def host_set_message(self, hostname: str, msg: str):
         self.host_status[hostname] = colored(f"({hostname}) ", 'white') + msg + '\n'
@@ -180,7 +181,7 @@ async def handler(request):
 
     data = dict(
         ansi2html_headers=ansi_conv.produce_headers().replace('\n', ' '),
-        http_host=request.host,
+        http_host=context.public_url if context.public_url else request.host,
         interval=int(context.interval * 1000)
     )
     response = aiojinja2.render_template('index.html', request, data)
@@ -299,6 +300,8 @@ def main():
     parser.add_argument('--exec', type=str,
                         default=DEFAULT_GPUSTAT_COMMAND,
                         help="command-line to execute (e.g. gpustat --color --gpuname-width 25)")
+    parser.add_argument('--public-url', type=str, default=None,
+                        help="Public URL used to serve the websockets endpoint. Format: <domain_name>:<port-optional>/<path-optional>")
     args = parser.parse_args()
 
     hosts = args.hosts or ['localhost']
@@ -307,6 +310,8 @@ def main():
 
     if args.interval > 0.1:
         context.interval = args.interval
+
+    context.public_url = args.public_url
 
     app, ssl_context = create_app(
         hosts=hosts, default_port=args.ssh_port,
