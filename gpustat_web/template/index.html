@@ -41,7 +41,9 @@
 
         // Use websocket
         var ws_protocol = (location.protocol == 'https:' ? 'wss:' : 'ws:');
-        var ws = new WebSocket(ws_protocol + "//{{http_host}}/ws");
+        var ws_host_path = document.location.host + "/" + document.location.pathname + "/ws";
+        ws_host_path = ws_host_path.replace(/\/\//g, '/');
+        var ws = new WebSocket(ws_protocol + "//" + ws_host_path);
         ws.onopen = function(e) {
           console.log('Websocket connection established', ws);
           ws.send('gpustat');
